@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "542049090470",
+    "project_id": "starlit-primacy-460716-t2",
+    "storage_bucket": "starlit-primacy-460716-t2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:542049090470:android:6a5f61d4091fb47c946d67",
+        "android_client_info": {
+          "package_name": "com.example.flutter_app_vertex_ai_agent"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKd7n-rzpRjIT07xz9TY4XKeyBo3Y5AvQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
