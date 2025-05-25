@@ -6,7 +6,7 @@ import 'chat_page.dart';
 
 void main() async {
 
-  String androidApiKey = String.fromEnvironment(
+  String androidApiKey = const String.fromEnvironment(
     'androidApiKey',
     defaultValue: 'default_key',
   );

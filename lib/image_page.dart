@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
-
 class ImagePage extends StatefulWidget {
   const ImagePage({super.key});
 
@@ -32,11 +31,13 @@ class _ImagePageState extends State<ImagePage> {
 
     imagenModel = FirebaseAI.googleAI().imagenModel(
       model: 'imagen-3.0-generate-002',
+      generationConfig: ImagenGenerationConfig(
+        addWatermark: true
+      )
     );
 
     print("Model initialized");
     print("generateImage");
-
   }
 
   @override
@@ -168,7 +169,6 @@ class _ImagePageState extends State<ImagePage> {
 
   void generateImage() async {
     try {
-
       print("Generating image...");
 
       final response = await imagenModel.generateImages(generateImagePrompt);
@@ -178,11 +178,12 @@ class _ImagePageState extends State<ImagePage> {
 
       final imageBytes = response.images[0].bytesBase64Encoded;
 
+
       final Directory? downloadsDir = await getDownloadsDirectory();
       print(downloadsDir?.path);
 
       final file = File('${downloadsDir?.path}/generated_image.png');
-      if(file.existsSync()) {
+      if (file.existsSync()) {
         file.deleteSync();
       }
 
@@ -190,10 +191,9 @@ class _ImagePageState extends State<ImagePage> {
       await file.writeAsBytes(imageBytes);
 
       setState(() {
-
         filePath = file.path;
       });
-    } catch (e,stack) {
+    } catch (e, stack) {
       print("Error generating image: $e $stack");
     }
   }
@@ -203,6 +203,7 @@ String analyzePrompt = """1. Describe this image in 10 words or less.
 2. How many people are in the image and what are they doing? 
 3. What is the main activity happening in the image?""";
 
-String generateImagePrompt = """A Golden labrador dog sitting on a beach with a sunset in the background and reading newspaper like human.
+String generateImagePrompt =
+    """A Golden labrador dog sitting on a beach with a sunset in the background and reading newspaper like human.
 The beach is sandy with gentle waves in the background and setting sun.
 Style of Image should Ghibli like""";
