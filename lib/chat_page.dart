@@ -1,16 +1,14 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+class ChatPage extends StatefulWidget {
+  const ChatPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<ChatPage> createState() => _ChatPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _ChatPageState extends State<ChatPage> {
   late GenerativeModel model;
 
   ValueNotifier<List<String>> chatMessages = ValueNotifier<List<String>>([]);
@@ -19,11 +17,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     model = FirebaseAI.vertexAI().generativeModel(
-      model: 'gemini-2.0-flash-001',
+      model:
+          'gemini-2.0-flash-001',
     );
   }
 
@@ -32,8 +30,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
-        title: Text(widget.title),
+        title: Text("Chat with Vertex Ai"),
       ),
       body: SingleChildScrollView(
         child: ValueListenableBuilder(
@@ -51,6 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       border: OutlineInputBorder(
                         borderSide: BorderSide(width: 1),
                       ),
+                      hintText: 'Enter your message',
                       suffix: IconButton(
                         onPressed: () {
                           submitText(textEditingController.text);
@@ -70,8 +68,17 @@ class _MyHomePageState extends State<MyHomePage> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(value[index], style: TextStyle(fontSize: 18,color: index%2==0?Colors.black:Colors.deepOrange),),
-                        Divider()
+                        Text(
+                          value[index],
+                          style: TextStyle(
+                            fontSize: 18,
+                            color:
+                                index % 2 == 0
+                                    ? Colors.black
+                                    : Colors.deepOrange,
+                          ),
+                        ),
+                        Divider(thickness: 1,),
                       ],
                     ),
                   );
@@ -90,12 +97,11 @@ class _MyHomePageState extends State<MyHomePage> {
     textEditingController.text = "";
 
     final content = [Content.text(text)];
-    chatMessages.value=[...chatMessages.value,text];
+    chatMessages.value = [text,...chatMessages.value, ];
 
     final response = await model.generateContent(content);
 
     print("response ${response.text}");
-    chatMessages.value=[...chatMessages.value,response.text ?? "N/A"];
-
+    chatMessages.value = [response.text ?? "N/A",...chatMessages.value, ];
   }
 }

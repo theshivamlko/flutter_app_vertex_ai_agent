@@ -1,7 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_vertex_ai_agent/image_page.dart';
 
-import 'my_home_page.dart';
+import 'chat_page.dart';
 
 void main() async {
   const String androidApiKey = String.fromEnvironment(
@@ -34,7 +35,54 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const HomePage(),
     );
   }
 }
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  ValueNotifier<int> selectedIndex = ValueNotifier<int>(0);
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: selectedIndex,
+      builder: (context, value, child) {
+        return Scaffold(
+          bottomNavigationBar: BottomNavigationBar(items:  [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.chat),
+              label: 'Chat',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.image),
+              label: 'Image',
+            ),
+          ],onTap: (value) {
+            selectedIndex.value = value;
+          },),
+          body: getBody(),
+        );
+      }
+    );
+  }
+
+  Widget getBody() {
+    return IndexedStack(
+      index: selectedIndex.value,
+      children: [
+        ChatPage(),
+        ImagePage(),
+
+      ],
+    );
+  }
+}
+
