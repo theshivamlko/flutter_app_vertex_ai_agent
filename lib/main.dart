@@ -5,12 +5,17 @@ import 'package:flutter_app_vertex_ai_agent/image_page.dart';
 import 'chat_page.dart';
 
 void main() async {
-  const String androidApiKey = String.fromEnvironment(
+
+  String androidApiKey = String.fromEnvironment(
     'androidApiKey',
     defaultValue: 'default_key',
   );
 
+
+  print(androidApiKey);
+
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: FirebaseOptions(
       apiKey: androidApiKey,
@@ -19,7 +24,6 @@ void main() async {
       projectId: "starlit-primacy-460716-t2",
     ),
   );
-
 
   runApp(const MyApp());
 }
@@ -56,33 +60,25 @@ class _HomePageState extends State<HomePage> {
       valueListenable: selectedIndex,
       builder: (context, value, child) {
         return Scaffold(
-          bottomNavigationBar: BottomNavigationBar(items:  [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.chat),
-              label: 'Chat',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.image),
-              label: 'Image',
-            ),
-          ],onTap: (value) {
-            selectedIndex.value = value;
-          },),
+          bottomNavigationBar: BottomNavigationBar(
+            items: [
+              BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
+              BottomNavigationBarItem(icon: Icon(Icons.image), label: 'Image'),
+            ],
+            onTap: (value) {
+              selectedIndex.value = value;
+            },
+          ),
           body: getBody(),
         );
-      }
+      },
     );
   }
 
   Widget getBody() {
     return IndexedStack(
       index: selectedIndex.value,
-      children: [
-        ChatPage(),
-        ImagePage(),
-
-      ],
+      children: [ChatPage(), ImagePage()],
     );
   }
 }
-
