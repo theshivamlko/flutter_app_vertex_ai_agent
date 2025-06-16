@@ -12,109 +12,100 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   ValueNotifier<List<ChatModel>> chatMessages = ValueNotifier<List<ChatModel>>([]);
+  ValueNotifier<bool> isLoading = ValueNotifier<bool>(false);
 
   TextEditingController textEditingController = TextEditingController();
 
-  String type = "Generate Content";
-
   late ChatSession chatSession;
 
-
+  @override
+  void initState() {
+    super.initState();
+    VertexAiAgent.createChatSession();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(backgroundColor: Theme.of(context).colorScheme.inversePrimary, title: Text("Chat with Vertex Ai")),
-      body: SingleChildScrollView(
-        child: ValueListenableBuilder(
-          valueListenable: chatMessages,
-          builder: (context, value, child) {
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Container(
-                    height: 60,
-                    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade400, width: 1),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: DropdownButton(
-                      isExpanded: true,
-                      value: type,
-                      underline: SizedBox(),
-                      items:
-                          ["Generate Content", "Multi Chat"].map((e) {
-                            return DropdownMenuItem(value: e, child: Text(e));
-                          }).toList(),
-                      onChanged: (value) {
-                        type = value!;
-                        chatMessages.value = [];
+      body: ValueListenableBuilder(
+        valueListenable: isLoading,
+        builder: (context, value, child) {
+          return ValueListenableBuilder(
+            valueListenable: chatMessages,
+            builder: (context, value, child) {
+              return Container(
+                color: Colors.white,
+                height: MediaQuery.of(context).size.height - 150,
+                padding: const EdgeInsets.all(8.0),
+                child: Stack(
+                  children: <Widget>[
 
-                        setState(() {});
-
-                        chatSession = VertexAiAgent.createChatSession()!;
-                      },
-                    ),
-                  ),
-                  Container(
-                    height: 80,
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: textEditingController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(borderSide: BorderSide(width: 1)),
-                        hintText: 'Enter your message',
-                        suffix: IconButton(
-                          onPressed: () {
-                            submitText(textEditingController.text);
-                          },
-                          icon: Icon(Icons.send),
+                    Container(
+                      height: MediaQuery.of(context).size.height - 300,
+                      alignment: Alignment.bottomCenter,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ...List.generate(value.length, (index) {
+                              final reversedIndex = value.length - 1 - index;
+                              return Align(
+                                alignment: value[reversedIndex].type == "modal" ? Alignment.centerLeft : Alignment.centerRight,
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(maxWidth: 300),
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(vertical: 4.0),
+                                    padding: const EdgeInsets.all(16.0),
+                                    decoration: BoxDecoration(
+                                      color: value[reversedIndex].type == "modal" ? Colors.blue.shade100 : Colors.grey.shade200,
+                                      borderRadius: BorderRadius.circular(12.0),
+                                    ),
+                                    child: Text(
+                                      value[reversedIndex].body,
+                                      textAlign: value[reversedIndex].type == "modal"? TextAlign.start :TextAlign.end,
+                                      style: TextStyle(fontSize: 18, color: Colors.black),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
+                            isLoading.value ? CircularProgressIndicator() : Container(),
+                          ],
                         ),
                       ),
-                      onSubmitted: (value) {
-                        submitText(value);
-                      },
                     ),
-                  ),
-                  ...List.generate(value.length, (index) {
-                    return Align(
-                      alignment: value[index].type == "modal"
-                          ? Alignment.centerLeft
-                          : Alignment.centerRight,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: 300,
-                        ),
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 4.0),
-                          padding: const EdgeInsets.all(16.0),
-                          decoration: BoxDecoration(
-                            color: value[index].type == "modal"
-                                ? Colors.blue.shade100
-                                : Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                          child: Text(
-                            value[index].body,
-                            textAlign: TextAlign.end,
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.black,
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        height: 80,
+                        color: Colors.white,
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          controller: textEditingController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(borderSide: BorderSide(width: 1)),
+                            hintText: 'Enter your message',
+                            suffix: IconButton(
+                              onPressed: () {
+                                submitText(textEditingController.text);
+                              },
+                              icon: Icon(Icons.send),
                             ),
                           ),
+                          onSubmitted: (value) {
+                            submitText(value);
+                          },
                         ),
                       ),
-                    );
-                  }),
-                ],
-              ),
-            );
-          },
-        ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
       ),
       // This trailing comma makes auto-formatting nicer for build methods.
     );
@@ -123,35 +114,21 @@ class _ChatPageState extends State<ChatPage> {
   void submitText(String text) async {
     FocusScope.of(context).unfocus();
     textEditingController.text = "";
-
-    if (type == "Generate Content") {
-      generateContent(text);
-    } else {
-      sendMessageToChat(text);
-    }
-  }
-
-  void generateContent(String text) async {
-    try {
-      print("generateContent text $text");
-      chatMessages.value = [ChatModel.fromUser(text), ...chatMessages.value];
-      GenerateContentResponse generateContentResponse = await VertexAiAgent.generateContent(text);
-
-      print("generateContent response ${generateContentResponse.text}");
-      chatMessages.value = [ChatModel.fromModal(generateContentResponse.text ?? "N/A"), ...chatMessages.value];
-    } catch (e) {
-      print("Error generateContent: $e");
-    }
+    sendMessageToChat(text);
   }
 
   void sendMessageToChat(String text) async {
     try {
+      isLoading.value = true;
+      print("sendMessageToChat text $text");
       chatMessages.value = [ChatModel.fromUser(text), ...chatMessages.value];
       GenerateContentResponse generateContentResponse = await VertexAiAgent.sendMessageToChat(text);
 
-      print("multiChat response ${generateContentResponse.text}");
+      print("sendMessageToChat response ${generateContentResponse.text}");
       chatMessages.value = [ChatModel.fromModal(generateContentResponse.text ?? "N / A"), ...chatMessages.value];
+      isLoading.value = false;
     } catch (e) {
+      isLoading.value = false;
       print("Error sendMessageToChat: $e");
     }
   }

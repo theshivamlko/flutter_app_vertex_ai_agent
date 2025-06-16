@@ -45,7 +45,10 @@ class _HomePageState extends State<HomePage> {
       valueListenable: selectedIndex,
       builder: (context, value, child) {
         return Scaffold(
+          backgroundColor: Colors.white,
           bottomNavigationBar: BottomNavigationBar(
+            backgroundColor: Colors.white,
+            currentIndex: selectedIndex.value,
             items: [
               BottomNavigationBarItem(icon: Icon(Icons.format_textdirection_l_to_r), label: 'Text Content'),
               BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
@@ -53,6 +56,9 @@ class _HomePageState extends State<HomePage> {
             ],
             onTap: (value) {
               selectedIndex.value = value;
+              setState(() {
+
+              });
             },
           ),
           body: getBody(),

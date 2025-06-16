@@ -11,6 +11,7 @@ class GenerateContentPage extends StatefulWidget {
 }
 
 class _GenerateContentPageState extends State<GenerateContentPage> {
+
   ValueNotifier<List<ChatModel>> chatMessages = ValueNotifier<List<ChatModel>>([]);
   ValueNotifier<bool> isLoading = ValueNotifier<bool>(false);
 
@@ -26,6 +27,7 @@ class _GenerateContentPageState extends State<GenerateContentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text("Generate Content with Vertex Ai"),
@@ -45,6 +47,7 @@ class _GenerateContentPageState extends State<GenerateContentPage> {
                       alignment: Alignment.bottomCenter,
                       child: Container(
                         height: 80,
+                        color: Colors.white,
                         padding: const EdgeInsets.all(8.0),
                         child: TextField(
                           controller: textEditingController,
@@ -86,7 +89,7 @@ class _GenerateContentPageState extends State<GenerateContentPage> {
                                     ),
                                     child: Text(
                                       value[reversedIndex].body,
-                                      textAlign: TextAlign.end,
+                                      textAlign: value[reversedIndex].type == "modal"? TextAlign.start :TextAlign.end,
                                       style: TextStyle(fontSize: 18, color: Colors.black),
                                     ),
                                   ),
