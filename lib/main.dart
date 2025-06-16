@@ -5,6 +5,7 @@ import 'chat_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'default_options.dart';
+import 'generate_content_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +47,7 @@ class _HomePageState extends State<HomePage> {
         return Scaffold(
           bottomNavigationBar: BottomNavigationBar(
             items: [
+              BottomNavigationBarItem(icon: Icon(Icons.format_textdirection_l_to_r), label: 'Text Content'),
               BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
               BottomNavigationBarItem(icon: Icon(Icons.image), label: 'Image'),
             ],
@@ -60,6 +62,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget getBody() {
-    return IndexedStack(index: selectedIndex.value, children: [ChatPage(), ImagePage()]);
+    return IndexedStack(index: selectedIndex.value, children: [GenerateContentPage(), ChatPage(), ImagePage()]);
   }
 }

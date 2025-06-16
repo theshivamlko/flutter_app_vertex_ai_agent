@@ -1,5 +1,6 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_vertex_ai_agent/chat_model.dart';
 import 'package:flutter_app_vertex_ai_agent/vertext_ai_agent.dart';
 
 class ChatPage extends StatefulWidget {
@@ -10,7 +11,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  ValueNotifier<List<String>> chatMessages = ValueNotifier<List<String>>([]);
+  ValueNotifier<List<ChatModel>> chatMessages = ValueNotifier<List<ChatModel>>([]);
 
   TextEditingController textEditingController = TextEditingController();
 
@@ -18,10 +19,7 @@ class _ChatPageState extends State<ChatPage> {
 
   late ChatSession chatSession;
 
-  @override
-  void initState() {
-    super.initState();
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -83,18 +81,32 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                   ),
                   ...List.generate(value.length, (index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            value[index],
-                            style: TextStyle(fontSize: 18, color: index % 2 == 0 ? Colors.black : Colors.deepOrange),
+                    return Align(
+                      alignment: value[index].type == "modal"
+                          ? Alignment.centerLeft
+                          : Alignment.centerRight,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: 300,
+                        ),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 4.0),
+                          padding: const EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: value[index].type == "modal"
+                                ? Colors.blue.shade100
+                                : Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(12.0),
                           ),
-                          Divider(thickness: 1),
-                        ],
+                          child: Text(
+                            value[index].body,
+                            textAlign: TextAlign.end,
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
                       ),
                     );
                   }),
@@ -120,20 +132,27 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void generateContent(String text) async {
-    chatMessages.value = [text, ...chatMessages.value];
-    GenerateContentResponse generateContentResponse = await VertexAiAgent.generateContent(text);
+    try {
+      print("generateContent text $text");
+      chatMessages.value = [ChatModel.fromUser(text), ...chatMessages.value];
+      GenerateContentResponse generateContentResponse = await VertexAiAgent.generateContent(text);
 
-    print("generateContent response ${generateContentResponse.text}");
-    chatMessages.value = [generateContentResponse.text ?? "N/A", ...chatMessages.value];
+      print("generateContent response ${generateContentResponse.text}");
+      chatMessages.value = [ChatModel.fromModal(generateContentResponse.text ?? "N/A"), ...chatMessages.value];
+    } catch (e) {
+      print("Error generateContent: $e");
+    }
   }
 
   void sendMessageToChat(String text) async {
-    chatMessages.value = ["User:-  $text", ...chatMessages.value];
-    GenerateContentResponse generateContentResponse = await VertexAiAgent.sendMessageToChat(text);
+    try {
+      chatMessages.value = [ChatModel.fromUser(text), ...chatMessages.value];
+      GenerateContentResponse generateContentResponse = await VertexAiAgent.sendMessageToChat(text);
 
-    print("multiChat response ${generateContentResponse.text}");
-    chatMessages.value = ["Modal:- ${generateContentResponse.text ?? "N / A"}", ...chatMessages.value];
-
-    final currentHistory = chatSession.history;
+      print("multiChat response ${generateContentResponse.text}");
+      chatMessages.value = [ChatModel.fromModal(generateContentResponse.text ?? "N / A"), ...chatMessages.value];
+    } catch (e) {
+      print("Error sendMessageToChat: $e");
+    }
   }
 }

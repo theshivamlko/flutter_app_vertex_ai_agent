@@ -7,20 +7,35 @@ class VertexAiAgent {
   static ChatSession? _chatSession;
 
   static Future<GenerateContentResponse> generateContent(String text) async {
-    final content = [Content.text(text)];
-    final response = await _model.generateContent(content);
-    return response;
+    try {
+      final content = [Content.text(text)];
+      final response = await _model.generateContent(content);
+      return response;
+    } catch (e) {
+      print("Error generating content: $e");
+      rethrow;
+    }
   }
 
   static ChatSession? createChatSession() {
-    _chatSession = _model.startChat();
-    return _chatSession;
+    try {
+      _chatSession = _model.startChat();
+      return _chatSession;
+    } catch (e) {
+      print("Error creating chat session: $e");
+      return null;
+    }
   }
 
   static Future<GenerateContentResponse> sendMessageToChat(String replyText) async {
-    final message = Content.text(replyText);
-    final GenerateContentResponse response = await _chatSession!.sendMessage(message);
+    try {
+      final message = Content.text(replyText);
+      final GenerateContentResponse response = await _chatSession!.sendMessage(message);
 
-    return response;
+      return response;
+    } catch (e) {
+      print("Error sending message to chat: $e");
+      rethrow;
+    }
   }
 }
