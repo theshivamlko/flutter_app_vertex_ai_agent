@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:firebase_ai/firebase_ai.dart';
 
 class VertexAiAgent {
@@ -35,6 +37,21 @@ class VertexAiAgent {
       return response;
     } catch (e) {
       print("Error sending message to chat: $e");
+      rethrow;
+    }
+  }
+
+  static Future<GenerateContentResponse> analyzeImage(String prompt, Uint8List image) async {
+    try {
+      final promptPart = TextPart(prompt);
+
+      final imagePart = InlineDataPart('image/jpeg', image);
+      final response = await _model.generateContent([
+        Content.multi([promptPart, imagePart]),
+      ]);
+      return response;
+    } catch (e) {
+      print("Error analyzing image: $e");
       rethrow;
     }
   }
