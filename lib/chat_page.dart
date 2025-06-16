@@ -1,5 +1,6 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_vertex_ai_agent/vertext_ai_agent.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -9,8 +10,6 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  late GenerativeModel model;
-
   ValueNotifier<List<String>> chatMessages = ValueNotifier<List<String>>([]);
 
   TextEditingController textEditingController = TextEditingController();
@@ -22,19 +21,12 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-
-    model = FirebaseAI.vertexAI().generativeModel(
-      model: 'gemini-2.0-flash-001',
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text("Chat with Vertex Ai"),
-      ),
+      appBar: AppBar(backgroundColor: Theme.of(context).colorScheme.inversePrimary, title: Text("Chat with Vertex Ai")),
       body: SingleChildScrollView(
         child: ValueListenableBuilder(
           valueListenable: chatMessages,
@@ -47,10 +39,7 @@ class _ChatPageState extends State<ChatPage> {
                 children: <Widget>[
                   Container(
                     height: 60,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 16.0,
-                      horizontal: 16,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey.shade400, width: 1),
                       borderRadius: BorderRadius.circular(8.0),
@@ -69,7 +58,7 @@ class _ChatPageState extends State<ChatPage> {
 
                         setState(() {});
 
-                        chatSession = model.startChat();
+                        chatSession = VertexAiAgent.createChatSession()!;
                       },
                     ),
                   ),
@@ -79,9 +68,7 @@ class _ChatPageState extends State<ChatPage> {
                     child: TextField(
                       controller: textEditingController,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(width: 1),
-                        ),
+                        border: OutlineInputBorder(borderSide: BorderSide(width: 1)),
                         hintText: 'Enter your message',
                         suffix: IconButton(
                           onPressed: () {
@@ -104,13 +91,7 @@ class _ChatPageState extends State<ChatPage> {
                         children: [
                           Text(
                             value[index],
-                            style: TextStyle(
-                              fontSize: 18,
-                              color:
-                                  index % 2 == 0
-                                      ? Colors.black
-                                      : Colors.deepOrange,
-                            ),
+                            style: TextStyle(fontSize: 18, color: index % 2 == 0 ? Colors.black : Colors.deepOrange),
                           ),
                           Divider(thickness: 1),
                         ],
@@ -134,31 +115,24 @@ class _ChatPageState extends State<ChatPage> {
     if (type == "Generate Content") {
       generateContent(text);
     } else {
-      multiChat(text);
+      sendMessageToChat(text);
     }
   }
 
   void generateContent(String text) async {
-    final content = [Content.text(text)];
     chatMessages.value = [text, ...chatMessages.value];
+    GenerateContentResponse generateContentResponse = await VertexAiAgent.generateContent(text);
 
-    final response = await model.generateContent(content);
-
-    print("response ${response.text}");
-    chatMessages.value = [response.text ?? "N/A", ...chatMessages.value];
+    print("generateContent response ${generateContentResponse.text}");
+    chatMessages.value = [generateContentResponse.text ?? "N/A", ...chatMessages.value];
   }
 
-  void multiChat(String text) async {
-    final message = Content.text(text);
+  void sendMessageToChat(String text) async {
     chatMessages.value = ["User:-  $text", ...chatMessages.value];
+    GenerateContentResponse generateContentResponse = await VertexAiAgent.sendMessageToChat(text);
 
-    final response = await chatSession.sendMessage(message);
-
-    print("response ${response.text}");
-    chatMessages.value = [
-      "Modal:- ${response.text ?? "N / A"}",
-      ...chatMessages.value,
-    ];
+    print("multiChat response ${generateContentResponse.text}");
+    chatMessages.value = ["Modal:- ${generateContentResponse.text ?? "N / A"}", ...chatMessages.value];
 
     final currentHistory = chatSession.history;
   }
