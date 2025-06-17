@@ -1,11 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_vertex_ai_agent/image_page.dart';
-import 'chat_page.dart';
+import 'package:flutter_app_vertex_ai_agent/screens/image_page.dart';
+import 'package:flutter_app_vertex_ai_agent/screens/video_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'default_options.dart';
-import 'generate_content_page.dart';
+import 'screens/chat_page.dart';
+import 'screens/generate_content_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,16 +50,18 @@ class _HomePageState extends State<HomePage> {
           bottomNavigationBar: BottomNavigationBar(
             backgroundColor: Colors.white,
             currentIndex: selectedIndex.value,
+            selectedItemColor: Colors.deepPurple,
+            unselectedItemColor: Colors.grey,
+            type: BottomNavigationBarType.fixed,
             items: [
-              BottomNavigationBarItem(icon: Icon(Icons.format_textdirection_l_to_r), label: 'Text Content'),
+              BottomNavigationBarItem(icon: Icon(Icons.format_textdirection_l_to_r), label: 'Content'),
               BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
               BottomNavigationBarItem(icon: Icon(Icons.image), label: 'Image'),
+              BottomNavigationBarItem(icon: Icon(Icons.slow_motion_video_outlined), label: 'Video'),
             ],
             onTap: (value) {
               selectedIndex.value = value;
-              setState(() {
-
-              });
+              setState(() {});
             },
           ),
           body: getBody(),
@@ -68,6 +71,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget getBody() {
-    return IndexedStack(index: selectedIndex.value, children: [GenerateContentPage(), ChatPage(), ImagePage()]);
+    return IndexedStack(index: selectedIndex.value, children: [GenerateContentPage(), ChatPage(), ImagePage(),VideoScreen()]);
   }
 }

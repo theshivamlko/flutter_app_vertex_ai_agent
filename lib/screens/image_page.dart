@@ -2,9 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_app_vertex_ai_agent/image_gen_agent.dart';
-import 'package:flutter_app_vertex_ai_agent/vertext_ai_agent.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../services/image_gen_agent.dart';
+import '../services/vertext_ai_agent.dart';
 
 class ImagePage extends StatefulWidget {
   const ImagePage({super.key});
@@ -33,7 +34,7 @@ class _ImagePageState extends State<ImagePage> {
 
       builder: (context, snapshot, value) {
         return Scaffold(
-          appBar: AppBar(backgroundColor: Theme.of(context).colorScheme.inversePrimary, title: Text("Imagen with Vertex Ai")),
+          appBar: AppBar(backgroundColor: Theme.of(context).colorScheme.inversePrimary, title: Text("Image Generation")),
           body: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),

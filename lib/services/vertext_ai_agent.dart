@@ -4,6 +4,7 @@ import 'package:firebase_ai/firebase_ai.dart';
 
 class VertexAiAgent {
   static final String modalName = 'gemini-2.0-flash-001';
+  // static final String modalName = 'gemini-2.5-pro-preview-06-05'; // in global region
   static final GenerativeModel _model = FirebaseAI.vertexAI().generativeModel(model: modalName);
 
   static ChatSession? _chatSession;

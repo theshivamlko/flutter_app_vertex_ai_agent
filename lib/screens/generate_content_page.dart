@@ -1,16 +1,18 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_vertex_ai_agent/chat_model.dart';
-import 'package:flutter_app_vertex_ai_agent/vertext_ai_agent.dart';
 
-class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+import '../modal/chat_model.dart';
+import '../services/vertext_ai_agent.dart';
+
+class GenerateContentPage extends StatefulWidget {
+  const GenerateContentPage({super.key});
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<GenerateContentPage> createState() => _GenerateContentPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _GenerateContentPageState extends State<GenerateContentPage> {
+
   ValueNotifier<List<ChatModel>> chatMessages = ValueNotifier<List<ChatModel>>([]);
   ValueNotifier<bool> isLoading = ValueNotifier<bool>(false);
 
@@ -21,14 +23,16 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    VertexAiAgent.createChatSession();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(backgroundColor: Theme.of(context).colorScheme.inversePrimary, title: Text("Chat with Vertex Ai")),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text("Generate Text Content"),
+      ),
       body: ValueListenableBuilder(
         valueListenable: isLoading,
         builder: (context, value, child) {
@@ -36,12 +40,10 @@ class _ChatPageState extends State<ChatPage> {
             valueListenable: chatMessages,
             builder: (context, value, child) {
               return Container(
-                color: Colors.white,
                 height: MediaQuery.of(context).size.height - 150,
                 padding: const EdgeInsets.all(8.0),
                 child: Stack(
                   children: <Widget>[
-
                     Container(
                       height: MediaQuery.of(context).size.height - 300,
                       alignment: Alignment.bottomCenter,
@@ -114,22 +116,22 @@ class _ChatPageState extends State<ChatPage> {
   void submitText(String text) async {
     FocusScope.of(context).unfocus();
     textEditingController.text = "";
-    sendMessageToChat(text);
+    generateContent(text);
   }
 
-  void sendMessageToChat(String text) async {
+  void generateContent(String text) async {
     try {
       isLoading.value = true;
-      print("sendMessageToChat text $text");
+      print("generateContent text $text");
       chatMessages.value = [ChatModel.fromUser(text), ...chatMessages.value];
-      GenerateContentResponse generateContentResponse = await VertexAiAgent.sendMessageToChat(text);
+      GenerateContentResponse generateContentResponse = await VertexAiAgent.generateContent(text);
 
-      print("sendMessageToChat response ${generateContentResponse.text}");
-      chatMessages.value = [ChatModel.fromModal(generateContentResponse.text ?? "N / A"), ...chatMessages.value];
+      print("generateContent response ${generateContentResponse.text}");
+      chatMessages.value = [ChatModel.fromModal(generateContentResponse.text ?? "N/A"), ...chatMessages.value];
       isLoading.value = false;
     } catch (e) {
       isLoading.value = false;
-      print("Error sendMessageToChat: $e");
+      print("Error generateContent: $e");
     }
   }
 }
