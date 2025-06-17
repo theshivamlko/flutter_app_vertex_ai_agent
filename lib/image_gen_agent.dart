@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:firebase_ai/firebase_ai.dart';
 
 class ImageGenAgent {
-  static final String modalName = 'imagen-3.0-generate-002';
+  static final String modalName = 'gemini-2.0-flash-preview-image-generation';
   static late final ImagenModel _imagenModel = FirebaseAI.googleAI().imagenModel(
     model: modalName,
     generationConfig: ImagenGenerationConfig(),

@@ -1,7 +1,5 @@
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_vertex_ai_agent/image_gen_agent.dart';
@@ -196,6 +194,6 @@ String analyzePrompt = """1. Describe this image in 10 words or less.
 3. What is the main activity happening in the image?""";
 
 String generateImagePrompt =
-    """A Golden labrador dog ,sitting on a beach with a sunset in the background and reading newspaper like human.
+    """A Golden labrador dog ,sitting on a beach in afternoon in the background and reading newspaper like human.
 The beach is sandy with gentle waves in the background and setting sun.
 Style of Image should Ghibli like""";
