@@ -12,7 +12,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: ".env");
-  await Firebase.initializeApp(options: DefaultOptions.currentPlatform(dotenv.env));
+  DefaultFirebaseOptions.loadFirebaseApp(dotenv.env);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MyApp());
 }
@@ -71,6 +72,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget getBody() {
-    return IndexedStack(index: selectedIndex.value, children: [GenerateContentPage(), ChatPage(), ImagePage(),VideoScreen()]);
+    return IndexedStack(index: selectedIndex.value, children: [GenerateContentPage(), ChatPage(), ImagePage(), VideoScreen()]);
   }
 }

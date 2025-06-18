@@ -3,8 +3,10 @@ import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_app_vertex_ai_agent/default_options.dart';
 import 'package:video_player/video_player.dart';
 
 import '../services/video_gen_agent.dart';
@@ -14,6 +16,7 @@ String analyzeVideoPrompt = """
     1. Utilize time stamps shown in video to understand single activity takes place in video within every 5 secs, only use time stamp that is shown in this video.
     Use "timestamp" key to inform the analysis starting time stamp.  
     2. Understand the activity or events going on this video, and set "category" key to the main activity. Categories can be like "sports", "cooking", "exercise", etc. 
+    3. Provide a brief analysis of the activity in "analysis" key, it should be a short description of the activity. Example: "A person is playing football.","A dog is sprinting."
     3. Identify the characters in the analysis,provide their breed in "characters" key. For humans characters will be Male/Female, for animals it will be their breed.
     3. Related "timestamp" and "category" should be put in single JSON Object. Hence multiple activities will from a JSON Array of JSON Objects from "timestamp" and "category"
     
@@ -125,45 +128,22 @@ class _VideoScreenState extends State<VideoScreen> {
   void submitText(String text) async {
     FocusScope.of(context).unfocus();
     isLoading.value = true;
-
-    // Spawn an isolate for video analysis
-    final receivePort = ReceivePort();
-    await Isolate.spawn<_IsolateData>(
-      _analyzeVideoIsolate,
-      _IsolateData(prompt: analyzeVideoPrompt, videoPath: videoPath, sendPort: receivePort.sendPort),
-    );
-
-    // Wait for result from isolate
-    final result = await receivePort.first;
-    if (result is String) {
-      outputJson = result;
-    } else {
-      outputJson = "No output received";
-    }
-    isLoading.value = false;
+    _analyzeVideoIsolate();
   }
 
-  void _analyzeVideoIsolate(_IsolateData data) async {
+  void _analyzeVideoIsolate() async {
     try {
-      final ByteData image = await rootBundle.load(data.videoPath);
+      final ByteData image = await rootBundle.load(videoPath);
       final videoBytes = image.buffer.asUint8List();
-
-      GenerateContentResponse response = await VideoGenAgent.analyzeVideo(data.prompt, videoBytes);
-      data.sendPort.send(response.text ?? "No output received");
-    } catch (e) {
-      data.sendPort.send("Error analyzing video: $e");
+      GenerateContentResponse response = await VideoGenAgent.analyzeVideo(analyzeVideoPrompt, videoBytes);
+      outputJson = response.text ?? "No output received";
+      print("Received output $outputJson");
+    } catch (e, stack) {
+      print(stack);
+      outputJson = "Error: ${e.toString()}";
+    } finally {
+      isLoading.value = false;
+      setState(() {});
     }
   }
-}
-
-class _IsolateData {
-  final String prompt;
-  final String videoPath;
-  final SendPort sendPort;
-
-  _IsolateData({
-    required this.prompt,
-    required this.videoPath,
-    required this.sendPort,
-  });
 }
