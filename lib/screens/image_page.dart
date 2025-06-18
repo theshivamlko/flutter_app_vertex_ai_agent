@@ -22,6 +22,15 @@ class _ImagePageState extends State<ImagePage> {
 
   ValueNotifier<bool> isLoading = ValueNotifier<bool>(false);
 
+  String analyzePrompt = """1. Describe this image in 10 words or less.  
+2. How many people are in the image and what are they doing? 
+3. What is the main activity happening in the image?""";
+
+  String generateImagePrompt =
+      """A Golden labrador dog ,sitting on a beach in afternoon in the background and reading newspaper like human.
+The beach is sandy with gentle waves in the background and setting sun.
+Style of Image should Ghibli like""";
+
   @override
   void initState() {
     super.initState();
@@ -189,12 +198,3 @@ class _ImagePageState extends State<ImagePage> {
     }
   }
 }
-
-String analyzePrompt = """1. Describe this image in 10 words or less.  
-2. How many people are in the image and what are they doing? 
-3. What is the main activity happening in the image?""";
-
-String generateImagePrompt =
-    """A Golden labrador dog ,sitting on a beach in afternoon in the background and reading newspaper like human.
-The beach is sandy with gentle waves in the background and setting sun.
-Style of Image should Ghibli like""";
